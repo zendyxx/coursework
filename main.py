@@ -42,7 +42,7 @@ with open('inter_date_num.txt', 'w') as file_inter_date_num:
         series['timestamp'] = to_datetime(series['timestamp'], unit='s')
         series.set_index('timestamp', inplace=True)
         upsampled = series.resample('D').mean()
-        interpolated = upsampled.interpolate(method='spline', order=3)
+        interpolated = upsampled.interpolate(method='nearest')
         interpolated = interpolated.reset_index()
         interpolated['timestamp'] = to_datetime(interpolated['timestamp'], unit='s')
         interpolated['timestamp'] = interpolated['timestamp'].apply(lambda x: time.mktime(x.timetuple()))
