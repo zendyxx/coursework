@@ -3,6 +3,7 @@ import datetime
 import time
 from pandas import read_csv
 from pandas import to_datetime
+from pandas import date_range
 
 with open('date_type.txt', 'w') as file_date_type:
     with open('events.csv', 'r', newline='') as file1:
@@ -42,8 +43,13 @@ with open('inter_date_num.txt', 'w') as file_inter_date_num:
         series['timestamp'] = to_datetime(series['timestamp'], unit='s')
         series.set_index('timestamp', inplace=True)
         upsampled = series.resample('D').mean()
-        interpolated = upsampled.interpolate(method='nearest')
+
+        new_index = date_range(start=upsampled.index.min(), end=upsampled.index.max(), freq='D')
+        interpolated = upsampled.reindex(new_index)
+        interpolated.interpolate(method='pchip', inplace=True)
+
         interpolated = interpolated.reset_index()
+        interpolated.rename(columns={'index': 'timestamp'}, inplace=True)
         interpolated['timestamp'] = to_datetime(interpolated['timestamp'], unit='s')
         interpolated['timestamp'] = interpolated['timestamp'].apply(lambda x: time.mktime(x.timetuple()))
         interpolated.to_csv(file_inter_date_num, index=False, sep=' ', header=False)
