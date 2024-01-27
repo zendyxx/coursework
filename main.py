@@ -52,6 +52,7 @@ with open('inter_date_num.txt', 'w') as file_inter_date_num:
         interpolated.rename(columns={'index': 'timestamp'}, inplace=True)
         interpolated['timestamp'] = to_datetime(interpolated['timestamp'], unit='s')
         interpolated['timestamp'] = interpolated['timestamp'].apply(lambda x: time.mktime(x.timetuple()))
+        interpolated['value'] = interpolated['value'].astype(int)
         interpolated.to_csv(file_inter_date_num, index=False, sep=' ', header=False)
 
 
