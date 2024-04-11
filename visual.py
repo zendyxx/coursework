@@ -26,6 +26,10 @@ data_x = [to_datetime(x, unit='s') for x in data['X']]
 data_y = [1200 for i in data_x]
 plt.bar(data_x, data_y, color='grey', lw=1, label='Events')
 
+for i, x in enumerate(data_x):
+    if start <= x <= finish:
+        plt.text(x, 300, str(i+1), rotation=90, ha='center')
+
 plt.xlim(start - timedelta(days=5), finish + timedelta(days=5))
 plt.ylim(250, 1050)
 

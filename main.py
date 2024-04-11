@@ -5,19 +5,26 @@ from pandas import read_csv
 from pandas import to_datetime
 from pandas import date_range
 
+date_type_data = []
+
+with open('events.csv', 'r', newline='') as file1:
+    csvreader1 = csv.reader(file1)
+    next(file1)
+    next(file1)
+    for row in csvreader1:
+        for i in range(len(row)):
+            if i != 0 and row[i] != '':
+                date_str = row[i].strip('/')
+                day, month = [int(part) for part in date_str.split('/')]
+                dt = datetime.datetime(2023, month, day)
+                unix_dt = time.mktime(dt.timetuple())
+                date_type_data.append((unix_dt, int(row[0])))
+
+date_type_data.sort(key=lambda x: x[0])
+
 with open('date_type.txt', 'w') as file_date_type:
-    with open('events.csv', 'r', newline='') as file1:
-        csvreader1 = csv.reader(file1)
-        next(file1)
-        next(file1)
-        for row in csvreader1:
-            for i in range(len(row)):
-                if i != 0 and row[i] != '':
-                    date_str = row[i].strip('/')
-                    day, month = [int(part) for part in date_str.split('/')]
-                    dt = datetime.datetime(2023, month, day)
-                    unix_dt = time.mktime(dt.timetuple())
-                    file_date_type.write(f"{unix_dt}, {int(row[0])}\n")
+    for unix_dt, value in date_type_data:
+        file_date_type.write(f"{unix_dt}, {value}\n")
 
 with open('date_num.txt', 'w') as file_date_num:
     with open('ds.csv', 'r', newline='') as file2:
@@ -36,7 +43,6 @@ with open('inter_date_num.txt', 'w') as file_inter_date_num:
         def read_data(filename):
             df = read_csv(filename, header=None, names=['timestamp', 'value'])
             df['timestamp'] = to_datetime(df['timestamp'], unit='s')
-            df['value'] = df['value']
             return df
 
         series = read_data(file3)
@@ -54,5 +60,3 @@ with open('inter_date_num.txt', 'w') as file_inter_date_num:
         interpolated['timestamp'] = interpolated['timestamp'].apply(lambda x: time.mktime(x.timetuple()))
         interpolated['value'] = interpolated['value'].astype(int)
         interpolated.to_csv(file_inter_date_num, index=False, sep=' ', header=False)
-
-
