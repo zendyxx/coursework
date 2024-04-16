@@ -41,3 +41,6 @@ for event_type in range(num_event_types):
     print(f"Коэффициенты для события {event_type+1}:")
     print(f"  День события: {final_coefficients[event_type]:.2f}")
     print(f"  Следующий день: {final_coefficients[event_type + num_event_types]:.2f}")
+
+def get_coefficients():
+    return final_coefficients
