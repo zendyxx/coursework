@@ -28,6 +28,16 @@ data_types = data['Type'].tolist()
 data_y = [1200 for _ in data_x]
 plt.bar(data_x, data_y, color='grey', lw=1, label='Events')
 
+# coef_data = pd.read_csv('table_coef.txt', delimiter=',', header=None, names=['Index', 'Num1', 'Num2'])
+# coef_data['Sum'] = int(coef_data['Num1']) + int(coef_data['Num2'])
+#
+# for idx, row in coef_data.iterrows():
+#     if idx == 0:
+#         continue
+#     event_index = int(row['Index']) - 1
+#     if 0 <= event_index < len(data_x):
+#         plt.bar(data_x[event_index], -row['Sum'], color='red', width=0.02, label='Negative Bar' if idx == 0 else "")
+
 for i, (x, type_text) in enumerate(zip(data_x, data_types)):
     if start <= x <= finish:
         plt.text(x, 1100, str(i+1), rotation=90, ha='center', va='bottom', fontsize=9, color='darkblue')
@@ -37,12 +47,12 @@ plt.text(start - timedelta(days=3), 1100, 'Num', fontsize=10, color='darkblue', 
 plt.text(start - timedelta(days=3), 1150, 'Type', fontsize=10, color='darkgreen', ha='left', va='bottom')
 
 plt.xlim(start - timedelta(days=5), finish + timedelta(days=5))
-plt.ylim(250, 1250)
+plt.ylim(-1500, 1250)
 
 plt.title('Data Comparison')
 plt.xlabel('Date')
 plt.ylabel('Number')
-plt.legend(loc='lower right')
+plt.legend(loc='upper right')
 
 chart_file_path = 'chart.png'
 plt.savefig(chart_file_path)

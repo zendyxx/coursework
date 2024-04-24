@@ -15,17 +15,20 @@ def load_data():
     return sub_time, sub_cnt, event_time, event_type
 
 def pharmacokinetic_model(t, K0, V_abs, V_el):
+    if abs(V_el - V_abs) <= 0.01:
+        return 0
     return K0 * (V_abs / (V_el - V_abs)) * (np.exp(-V_abs * t) - np.exp(-V_el * t))
 
 def get_parameters():
     sub_time, sub_cnt, event_time, event_type = load_data()
     num_event_types = len(set(event_type))
     initial_params = np.random.rand(num_event_types * 3)
-    initial_params[:num_event_types] *= 10
-    initial_params[num_event_types:2*num_event_types] *= 2
-    initial_params[2*num_event_types:] *= 1.8
-    initial_params[2*num_event_types:] += 0.2
-    bounds = [(0, 10)] * num_event_types + [(0, 2)] * num_event_types + [(0.2, 2)] * num_event_types
+    initial_params[:num_event_types] *= 100
+    initial_params[num_event_types:2*num_event_types] *= 1.7
+    initial_params[num_event_types:2*num_event_types] += 0.3
+    initial_params[2*num_event_types:] *= 1.85
+    initial_params[2*num_event_types:] += 0.15
+    bounds = [(0, 100)] * num_event_types + [(0.3, 2)] * num_event_types + [(0.15, 2)] * num_event_types
 
     def loss_function(params):
         K0s = params[:num_event_types]
@@ -33,14 +36,19 @@ def get_parameters():
         V_els = params[2*num_event_types:3*num_event_types]
         total_subscribers = np.zeros(len(sub_time)) + sub_cnt[0]
 
+        start = sub_time[0]
         for i, sub_day in enumerate(sub_time):
             total_effect = 0
             for j, (ed, et) in enumerate(zip(event_time, event_type)):
+                if ed < start:
+                    continue
                 K0 = K0s[et - 1]
                 V_abs = V_abss[et - 1]
                 V_el = V_els[et - 1]
                 if sub_day >= ed:
-                    effect = pharmacokinetic_model(sub_day - ed, K0, V_abs, V_el)
+                    effect = pharmacokinetic_model((sub_day - ed)//86400, K0, V_abs, V_el)
+                    #effect, error = quad(
+                        #lambda t, K0=K0, V_abs=V_abs, V_el=V_el: pharmacokinetic_model(t, K0, V_abs, V_el), 0,(sub_day - ed)//86400)
                     total_effect += effect
             total_subscribers[i] += total_effect
         return np.sum((total_subscribers - sub_cnt) ** 2)
@@ -55,8 +63,11 @@ for i in range(len(K0_params)):
 
 integrals = []
 for i in range(len(K0_params)):
-    integral, error = quad(lambda t, K0=K0_params[i], V_abs=V_abs_params[i], V_el=V_el_params[i]: pharmacokinetic_model(t, K0, V_abs, V_el), 0, 1000)
+    integral, error = quad(lambda t, K0=K0_params[i], V_abs=V_abs_params[i], V_el=V_el_params[i]: pharmacokinetic_model(t, K0, V_abs, V_el), 0, np.inf)
     integrals.append((i + 1, integral))
 
 for idx, val in integrals:
     print(f"Integral for event type {idx}: {val:.2f}")
+
+def get_coefficients():
+    return integrals
