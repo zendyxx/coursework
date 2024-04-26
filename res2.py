@@ -23,10 +23,11 @@ for event_type, numbers in type_to_numbers.items():
 plot_data = plot_data.sort_values(by='Event_Number')
 
 plt.figure(figsize=(10, 5))
-plt.bar(plot_data['Event_Number'], plot_data['Efficiency'], tick_label=plot_data['Event_Number'].astype(int))
+plt.bar(plot_data['Event_Number'], plot_data['Efficiency'], color='blue')
 plt.xlabel('Номер мероприятия')
 plt.ylabel('Эффективность мероприятия')
 plt.title('Эффективность мероприятий')
+plt.xlim(20, 50)
 plt.grid(True)
 
 chart_file_path = 'bar2.png'

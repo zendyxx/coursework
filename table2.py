@@ -5,8 +5,30 @@ import matplotlib.pyplot as plt
 
 from model2 import get_coefficients
 final_coefficients = get_coefficients()
-
 num_event_types = len(final_coefficients)
+
+file1 = 'inter_date_num.txt'
+data1 = pd.read_csv(file1, delimiter=' ', header=None, names=['X', 'Y'])
+sub_time = [int(x) for x in data1['X']]
+sub_cnt = [int(y) for y in data1['Y']]
+
+file2 = 'date_type.txt'
+data2 = pd.read_csv(file2, delimiter=',', header=None, names=['X', 'Y'])
+event_time = [int(x) for x in data2['X']]
+event_type = [int(y) for y in data2['Y']]
+
+min_time = min(sub_time)
+max_time = max(sub_time)
+
+check_index = np.zeros(len(final_coefficients) + 1)
+for i in range(len(event_time)):
+    if min_time <= event_time[i] <= max_time:
+        check_index[event_type[i]] = 1
+
+for i in range(num_event_types):
+    if check_index[i+1] == 0:
+        final_coefficients[i+1][1] = 0
+
 data = []
 
 for event_type in range(num_event_types):
